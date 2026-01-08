@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/pomo'
+require 'thor'
+
+module Pomo
+  class CLI < Thor
+    desc "start", "Start a new pomodoro cycle"
+    def start
+      puts "Starting Pomo cycle... (Press Ctrl+C to stop)".colorize(:green)
+      cycle = Cycle.new
+      
+      trap("INT") do
+        puts "\nStopping cycle...".colorize(:red)
+        cycle.stop
+        exit
+      end
+      
+      cycle.start
+    end
+  end
+end
+
+Pomo::CLI.start(ARGV)
