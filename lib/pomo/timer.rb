@@ -2,10 +2,11 @@ module Pomo
   class Timer
     attr_reader :duration, :remaining
     
-    def initialize(minutes)
+    def initialize(minutes, type = :work)
       @duration = (minutes * 60) # Convert to seconds
       @remaining = @duration
       @running = false
+      @type = type
     end
     
     def start(&on_complete)
@@ -43,8 +44,12 @@ module Pomo
       filled = (bar_width * progress).to_i
       empty = bar_width - filled
       
-      # Build progress bar with colors
-      filled_bar = ('█' * filled).green
+      # Build progress bar with colors based on type
+      if @type == :work
+        filled_bar = ('█' * filled).green
+      else  # :break
+        filled_bar = ('█' * filled).magenta
+      end
       empty_bar = ('░' * empty).light_black
       percentage = "#{(progress * 100).to_i}%".cyan
       time = "#{minutes}:#{seconds.to_s.rjust(2, '0')}".yellow

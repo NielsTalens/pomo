@@ -10,6 +10,7 @@ module Pomo
       play_sound('end.wav')
     end
 
+    # Letś see if the looping break sound is a nice feature or a one shot is better
     def self.play_break_sound
       play_sound('MF_Harmonics-B.wav')
     end
