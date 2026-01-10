@@ -1,10 +1,10 @@
 module Pomo
   class Cycle
     PHASES = [
-      { name: 'Pomodoro I', duration: 0.05, type: :work },
-      { name: 'Short Rest', duration: 0.05, type: :break},
-      { name: 'Pomodoro II', duration: 0.05, type: :work },
-      { name: 'Long Rest', duration: 0.05, type: :break}
+      { name: 'Pomodoro I', duration: 25, type: :work },
+      { name: 'Short Rest', duration: 5, type: :break},
+      { name: 'Pomodoro II', duration: 25, type: :work },
+      { name: 'Long Rest', duration: 5, type: :break}
     ].freeze
     
     def initialize
@@ -46,7 +46,7 @@ module Pomo
           Sound.start_looping_break_sound
         end
         
-        @timer = Timer.new(phase[:duration], phase[:type])
+        @timer = Timer.new(phase[:duration])
         @timer.start do
           if phase[:type] == :break
             Sound.stop_looping_break_sound 
