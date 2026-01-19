@@ -14,6 +14,11 @@ module Pomo
       task
     end
     
+    def delete(index)
+      @tasks.delete_at(index)
+      save_tasks
+    end
+
     def complete(index)
       @tasks[index]&.complete!
       save_tasks
@@ -50,7 +55,10 @@ module Pomo
       save_tasks
     end
 
-        private
+    def save_tasks
+      File.write(@file_path, JSON.pretty_generate(@tasks.map { |t| { name: t.name, status: t.status } }))
+    end
+    private
     
     def load_tasks
       return [] unless File.exist?(@file_path)
@@ -61,8 +69,5 @@ module Pomo
       []
     end
     
-    def save_tasks
-      File.write(@file_path, JSON.pretty_generate(@tasks.map { |t| { name: t.name, status: t.status } }))
-    end
   end
 end

@@ -7,7 +7,19 @@ module Pomo
   class CLI < Thor
     desc "start", "Start a new pomodoro cycle"
     def start
-      puts "Starting Pomo cycle... (Press Ctrl+C to stop)".colorize(:green)
+      puts <<~ASCII.colorize(:cyan)
+      ──────────────────────────────────────────
+
+        ███████╗ ███████╗ ███╗  ███╗ ███████╗
+        ██╔══██║ ██╔══██║ ████╗████║ ██╔══██║
+        ██████╔╝ ██║  ██║ ██╔███╔██║ ██║  ██║
+        ██║      ███████║ ██║ ╚═╝██║ ███████║
+        ╚═╝      ╚══════╝ ╚═╝    ╚═╝ ╚══════╝
+      ──────────────────────────────────────────
+      ASCII
+      puts "[ Starting Pomo cycle... (Press Ctrl+C to stop) ]".colorize(:green)
+      puts "─────────────────────────────────────────────────".colorize(:green)
+
       cycle = Cycle.new
       
       trap("INT") do
@@ -25,33 +37,41 @@ module Pomo
       task_list.add(name)
       puts "Added: #{name}".colorize(:green)
     end
+
+    desc "rm INDEX", "Delete a task"
+    def rm(index)
+      task_list = TaskList.new
+      task_list.delete(index.to_i - 1)
+      puts "Task #{index} deleted!".colorize(:red)
+      ls
+    end
     
-    desc "list", "Show all tasks"
-    def list
+    desc "ls", "Show all tasks"
+    def ls
       task_list = TaskList.new
       task_list.list
     end
     
-    desc "complete INDEX", "Mark a task as completed"
-    def complete(index)
+    desc "comp INDEX", "Mark a task as completed"
+    def comp(index)
       task_list = TaskList.new
       task_list.complete(index.to_i - 1)
       puts "Task #{index} completed!".colorize(:green)
-      list
+      ls
     end
 
-    desc "reset INDEX", "Mark a task as pending"
-    def reset(index)
+    desc "rs INDEX", "Mark a task as pending"
+    def rs(index)
       task_list = TaskList.new
       task_list.reset(index.to_i - 1)
       puts "Task #{index} reset to pending.".colorize(:green)
-      list
+      ls
     end
 
     desc "up INDEX", "Move task up one position"
     def up(index)
       TaskList.new.move_up(index.to_i - 1)
-      list
+      ls
     end
 
     desc "down INDEX", "Move task down one position"

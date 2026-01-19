@@ -1,14 +1,13 @@
 module Pomo
   class Cycle
-    PHASES = [
-      { name: 'Pomodoro I', duration: 25, type: :work },
-      { name: 'Short Rest', duration: 5, type: :break},
-      { name: 'Pomodoro II', duration: 25, type: :work },
-      { name: 'Long Rest', duration: 7, type: :break}
-    ].freeze
+    WORK_DURATION = 25
+    SHORT_BREAK = 5
+    LONG_BREAK = 15
+    POMODOROS_BEFORE_LONG_BREAK = 4
     
     def initialize
-      @current_phase = 0
+      @task_list = TaskList.new
+      @current_task = nil
       @pomo_count = 0
       @timer = nil
       @running = false
@@ -16,6 +15,13 @@ module Pomo
     
     def start
       @running = true
+      @current_task = fetch_next_task
+      
+      unless @current_task
+        puts "\nNo pending tasks. Add tasks first with 'pomo add <task_name>'".colorize(:yellow)
+        return
+      end
+      
       run_cycle
     end
     
@@ -25,41 +31,77 @@ module Pomo
       puts "\nCycle stopped."
     end
     
-    def restart
-      @current_phase = 0
-      @timer&.restart
-      puts "\nRestarting cycle..."
-      start
-    end
-    
     private
     
     def run_cycle
       while @running
-        phase = PHASES[@current_phase]
+        # Check if we still have tasks to work on
+        unless @current_task
+          puts "\n✓ All tasks completed! There are no more pomodoros.".colorize(:green)
+          stop
+          break
+        end
         
-        puts "\n#{phase[:name]}(#{phase[:duration]} minutes)".colorize(:green)
-
-        if phase[:type] == :work
-          Sound.play_start_sound
+        # Run Pomodoro with current task
+        run_pomodoro
+        break unless @running
+        
+        # Ask if task is complete
+        if task_completed?
+          @current_task.complete!
+          @task_list.save_tasks
+          puts "✓ Task marked as complete!".colorize(:green)
+          @current_task = fetch_next_task
         else
-          Sound.play_break_sound
+          puts "→ Continuing with same task".colorize(:yellow)
         end
         
-        @timer = Timer.new(phase[:duration])
-        @timer.start do
-          if phase[:type] == :break
-            2.times { Sound.play_break_sound }
-          else
-            Sound.play_end_sound
-            @pomo_count += 1
-            puts "| Pomodoros completed: #{@pomo_count}".colorize(:cyan)
-          end
+        # Check again if we have more tasks
+        unless @current_task
+          puts "\n✓ All tasks completed! There are no more pomodoros.".colorize(:green)
+          stop
+          break
         end
-
-        # Move to next phase
-        @current_phase = (@current_phase + 1) % PHASES.length
+        
+        # Run break
+        run_break
       end
+    end
+    
+    def run_pomodoro
+      @pomo_count += 1
+      puts "\nPomodoro #{@pomo_count}: ".colorize(:green) + 
+          "#{@current_task.name}".colorize(:cyan) + 
+          " (#{WORK_DURATION} min)".colorize(:green)      
+      Sound.play_start_sound
+      @timer = Timer.new(WORK_DURATION, :work)
+      @timer.start do
+        Sound.play_end_sound
+      end
+    end
+    
+    def run_break
+      break_type = (@pomo_count % POMODOROS_BEFORE_LONG_BREAK == 0) ? :long : :short
+      duration = (break_type == :long) ? LONG_BREAK : SHORT_BREAK
+      break_name = (break_type == :long) ? "Long Break" : "Short Break"
+      
+      puts "#{break_name} (#{duration} min)".colorize(:magenta)
+      
+      Sound.play_break_sound
+      @timer = Timer.new(duration, :break)
+      @timer.start do
+        2.times { Sound.play_break_sound }
+      end
+    end
+    
+    def task_completed?
+      print "\nTask completed? (Y/n): "
+      response = $stdin.gets.chomp.downcase
+      response == 'y' || response == 'yes' || response.empty?
+    end
+    
+    def fetch_next_task
+      @task_list.pending_tasks.first
     end
   end
 end
