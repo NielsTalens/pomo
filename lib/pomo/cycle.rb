@@ -4,7 +4,7 @@ module Pomo
       { name: 'Pomodoro I', duration: 25, type: :work },
       { name: 'Short Rest', duration: 5, type: :break},
       { name: 'Pomodoro II', duration: 25, type: :work },
-      { name: 'Long Rest', duration: 5, type: :break}
+      { name: 'Long Rest', duration: 7, type: :break}
     ].freeze
     
     def initialize
@@ -43,13 +43,13 @@ module Pomo
         if phase[:type] == :work
           Sound.play_start_sound
         else
-          Sound.start_looping_break_sound
+          Sound.play_break_sound
         end
         
         @timer = Timer.new(phase[:duration])
         @timer.start do
           if phase[:type] == :break
-            Sound.stop_looping_break_sound 
+            2.times { Sound.play_break_sound }
           else
             Sound.play_end_sound
             @pomo_count += 1

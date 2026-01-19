@@ -9,8 +9,12 @@ rest large - 10 min - start sound - end sound
 
 Functions:
 Start
-restart
 stop
+
+- Make a lists of tasks: define name and status 
+- Complete tasks
+- Skip pomo 
+
 
 
 
