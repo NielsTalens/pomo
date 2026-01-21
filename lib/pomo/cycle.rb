@@ -13,9 +13,9 @@ module Pomo
       @running = false
     end
     
-    def start
+    def start(chosen_task = nil)
       @running = true
-      @current_task = fetch_next_task
+      @current_task = chosen_task ? @task_list.all[chosen_task] : fetch_next_task
       
       unless @current_task
         puts "\nNo pending tasks. Add tasks first with 'pomo add <task_name>'".colorize(:yellow)

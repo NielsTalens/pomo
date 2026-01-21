@@ -20,6 +20,14 @@ module Pomo
       puts "[ Starting Pomo cycle... (Press Ctrl+C to stop) ]".colorize(:green)
       puts "─────────────────────────────────────────────────".colorize(:green)
 
+      ls
+
+      print "\nPlease enter the number of the task to start with "
+      print "\nor press Enter to start with the first pending task): "
+
+      response = $stdin.gets.chomp
+      chosen_task = response.empty? ? nil : response.to_i - 1
+
       cycle = Cycle.new
       
       trap("INT") do
@@ -28,7 +36,7 @@ module Pomo
         exit
       end
       
-      cycle.start
+      cycle.start(chosen_task)
     end
     
     desc "add TASK_NAME", "Add a new task to the list"
