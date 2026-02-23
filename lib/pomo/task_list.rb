@@ -56,14 +56,19 @@ module Pomo
     end
 
     def save_tasks
-      File.write(@file_path, JSON.pretty_generate(@tasks.map { |t| { name: t.name, status: t.status } }))
+      File.write(
+        @file_path,
+        JSON.pretty_generate(
+          @tasks.map { |t| { name: t.name, status: t.status, pomo_count: t.pomo_count } }
+        )
+      )
     end
     private
     
     def load_tasks
       return [] unless File.exist?(@file_path)
       JSON.parse(File.read(@file_path)).map do |data|
-        Task.new(data['name']).tap { |t| t.status = data['status'].to_sym }
+        Task.new(data['name'], data['pomo_count']).tap { |t| t.status = data['status'].to_sym }
       end
     rescue JSON::ParserError
       []

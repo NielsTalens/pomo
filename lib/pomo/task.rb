@@ -1,12 +1,13 @@
 module Pomo
   class Task
     attr_reader :name
-    attr_accessor :status
-    
-    def initialize(name)
+    attr_accessor :status, :pomo_count
+
+    def initialize(name, pomo_count = 0)
       @name = name
       @status = :pending
       @type = :work
+      @pomo_count = pomo_count.to_i
     end
     
     def complete!
@@ -24,12 +25,17 @@ module Pomo
     def completed?
       @status == :completed
     end
+
+    def increment_pomo!
+      @pomo_count += 1
+    end
     
     def to_s
+      count_label = " | #{@pomo_count}"
       if completed?
-        "✓ #{@name}".colorize(:green)
+        "✓ #{@name}#{count_label}".colorize(:green)
       else
-        "○ #{@name}".colorize(:yellow)
+        "○ #{@name}#{count_label}".colorize(:yellow)
       end
     end
   end

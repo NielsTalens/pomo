@@ -77,6 +77,8 @@ module Pomo
       @timer = Timer.new(WORK_DURATION, :work)
       @timer.start do
         Sound.play_end_sound
+        @current_task.increment_pomo!
+        @task_list.save_tasks
       end
     end
     
